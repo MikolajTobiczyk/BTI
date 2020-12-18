@@ -1,0 +1,40 @@
+using System;
+
+namespace szyfrcezara
+{
+    class Program
+    {
+        public static char Szyfr(char znak, int klucz)
+        {
+            if (!char.IsLetter(znak))
+            {
+                return znak;
+            }
+            char abc = char.IsUpper(znak) ? 'A' : 'a';
+            return (char)(((znak + klucz) - abc )%26 +abc);
+        }
+        public static string Szyfruj(string zdanie, int klucz)
+        {
+            string koncowe = "";
+            foreach (char znak in zdanie)
+            {
+                koncowe += Szyfr(znak, klucz);
+            }
+            return koncowe;
+        }
+        public static string Odszyfruj(string zdanie, int klucz)
+        {
+            return Szyfruj(zdanie, 26 - klucz);
+        }
+        static void Main(string[] args)
+        {
+            string zdanie = "przykładowe zdanie do szyfrowania";
+            int klucz = 5;
+            string zdaniezaszyfrowane = Szyfruj(zdanie, klucz);
+            string odszyfrowanezdanie = Odszyfruj(zdaniezaszyfrowane, klucz);
+
+            Console.WriteLine("Twoje zdanie: {0} \nZaszyfrowane zdanie: {1} \nOdszyfrowane zdanie: {2}",zdanie,zdaniezaszyfrowane,odszyfrowanezdanie);
+            Console.ReadKey();
+        }
+    }
+}
