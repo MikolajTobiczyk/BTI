@@ -1,0 +1,139 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+
+namespace Szyfr_Winogrona
+{
+    class Program
+    {
+        private static string[][] TablicaKodowania { get; set; }
+        private static List<char> Alfabet = new
+        List<char>() {
+             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+            'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z' ,
+                     };
+        private static List<char> NewAlphabetChar = new
+       List<char>();
+        static void Main(string[] args)
+        {
+            TablicaKodowania = new string[Alfabet.Count][];
+            for (int i = 0; i < TablicaKodowania.Length; i++)
+                TablicaKodowania[i] = new string[TablicaKodowania.Length];
+            do
+            {
+                string klucz = "abcklucz";
+                string haslo = "tajnehaslo";
+                string zdanie = "tajne zdanie które trzeba zakodować tutaj jeszcze cos dopisze dla sprawdzenia";
+                NewAlphabetChar = GenerujAlfabet(klucz.ToUpper());
+                TablicaKodowania = GenerateCode(NewAlphabetChar);
+                var p = Haslo(haslo.ToUpper(),
+                zdanie.ToUpper());
+                var zdaniezaszyfrowane = Odszyfruj(zdanie.ToUpper(), p);
+                Console.WriteLine("Klucz: {0} \nHasło: {1} \nNasze zdanie: {2} \nZakodowane zdanie: {3}",klucz,haslo,zdanie,zdaniezaszyfrowane);
+                Console.ReadKey(); 
+            } 
+            while (true);
+        }
+        private static string LiteryDoZaszyfrowania(string literajeden, string literadwa)
+        {
+            int f = 0;
+            int s = 0;
+            bool fb = false, sb = false;
+            for (int i = 0; i < TablicaKodowania.Length; i++)
+            {
+                if (literajeden == TablicaKodowania[0][i])
+                {
+                    f = i;
+                    fb = true;
+                }
+                if (literadwa == TablicaKodowania[i][0])
+                {
+                    s = i;
+                    sb = true;
+                }
+                if (fb && sb)
+                    break;
+            }
+            return TablicaKodowania[f][s];
+        }
+       
+        private static string Haslo(string haslo, string text)
+        {
+            StringBuilder builder = new StringBuilder();
+            List<char> list = new List<char>();
+            for (int i = 0; i < haslo.Length; i++)
+                list.Add(char.Parse(haslo.Substring(i, 1)));
+            int next = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (next == list.Count)
+                    next = 0;
+                if (' ' == char.Parse(text.Substring(i, 1)))
+                    builder.Append(" ");
+                else builder.Append(list[next]);
+                ++next;
+            }
+            return builder.ToString();
+        }
+        private static string Odszyfruj(string tekstdoszyfrowania, string haslo)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < tekstdoszyfrowania.Length; i++)
+            {
+                if (' ' == char.Parse(tekstdoszyfrowania.Substring(i, 1)))
+                    builder.Append(" ");
+                else
+                    builder.Append(LiteryDoZaszyfrowania(tekstdoszyfrowania.Substring(i, 1), haslo.Substring(i, 1)));
+            }
+            return builder.ToString();
+        }
+        private static string[][] GenerateCode(List<char> alphabet)
+        {
+            string[][] codeArray = new
+            string[Alfabet.Count][];
+            for (int i = 0; i < codeArray.Length; i++)
+            {
+                codeArray[i] = new string[codeArray.Length];
+            }
+            int przesuniecie = 0;
+            int controlshift = 0;
+            for (int i = 0; i < alphabet.Count; i++)
+            {
+                for (int j = 0; j < alphabet.Count; j++)
+                {
+                    if (przesuniecie == alphabet.Count)
+                    {
+                        przesuniecie = 0;
+                    }
+                    codeArray[i][j] =
+                    alphabet[przesuniecie].ToString();
+                    ++przesuniecie;
+                }
+                ++controlshift;
+                przesuniecie = controlshift;
+
+            }
+            return codeArray;
+        }
+        private static List<char> GenerujAlfabet(string key)
+        {
+            HashSet<char> alfabet = new HashSet<char>();
+            HashSet<char> keyList = new HashSet<char>();
+            for (int i = 0; i < key.Length; i++)
+            {
+                keyList.Add(char.Parse(key.Substring(i, 1)));
+                alfabet.Add(char.Parse(key.Substring(i, 1)));
+            }
+            for (int i = 0; i < Alfabet.Count; i++)
+            {
+                foreach (var item in keyList)
+                    if (Alfabet[i] == item)
+                        break;
+                alfabet.Add(Alfabet[i]);
+            }
+            return alfabet.ToList();
+        }
+    }
+}
