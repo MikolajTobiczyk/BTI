@@ -1,0 +1,221 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Szyfr_Playfair
+{
+    class Pair
+    {
+        public string s1 { get; set; }
+        public string s2 { get; set; }
+    }
+    class Program
+    {
+        private static List<char> alfabet = new List<char>()
+        {
+            'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S','T','U','V','W','X','Y','Z'
+        };
+
+        public static string[][] tablicaKodowania { get; set; }
+
+        static void Main(string[] args)
+        {
+
+            string klucz = "acvbnm";
+            tablicaKodowania = GeneratorTablicyKodowania(klucz.ToUpper(), alfabet);
+            var text = "super dlugie zdanie ktore trzeba zaszyfrowac";
+            var zakodowanezdanie = Szyfruj(text.ToUpper(), tablicaKodowania);
+            Console.WriteLine("Zaszyfrowane zdanie: {0}",zakodowanezdanie);
+            Console.WriteLine("Odszyfrowane zdanie: {0}",Odszyfruj(zakodowanezdanie.ToUpper(), tablicaKodowania));
+
+            Console.ReadLine();
+        }
+
+        private static string[][] GeneratorTablicyKodowania(string klucz, List<char> alfabet)
+        {
+            string[][] tablica = new string[5][];
+            for (int i = 0; i < tablica.Length; i++)
+                tablica[i] = new string[5];
+            string litera = "";
+            bool end = false;
+            int krok = 0;
+            int rep = alfabet.Count();
+            for (int i = 0; i < tablica.Length; i++)
+            {
+                for (int j = 0; j < tablica.Length; j++)
+                {
+                    if (!end)
+                    {
+                        litera = klucz.Substring(krok, 1);
+                        tablica[i][j] = litera;
+                        for (int k = 0; k < rep; k++)
+                        {
+                            if (litera == alfabet[k].ToString())
+                            {
+                                alfabet.Remove(alfabet[k]);
+                                break;
+                            }
+                        }
+                        ++krok;
+                        if (krok == klucz.Length)
+                        {
+                            end = true;
+                        }}
+                    else
+                    {
+                        tablica[i][j] = alfabet[0].ToString();
+                        alfabet.Remove(alfabet[0]);
+                    }
+                }
+            }
+
+            return tablica;
+        }
+        private static string Odszyfruj(string TextDoOdszyfrowania, string[][] array)
+        {
+            StringBuilder builder = new StringBuilder();
+            List<Pair> Pary = TworzPary(TextDoOdszyfrowania);
+            int indexK1 = 0, indexK2 = 0, indexV1 = 0, indexV2 = 0;
+            foreach (var item in Pary)
+            {
+                for (int i = 0; i < array.Length; i++)
+                    for (int j = 0; j < array.Length; j++)
+                    {
+                        if (item.s1 == array[i][j])
+                        {
+                            indexK1 = i;
+                            indexK2 = j;
+                        }
+                        if (item.s2 == array[i][j])
+                        {
+                            indexV1 = i;
+                            indexV2 = j;
+                        }
+                    }
+                if (indexK1 == indexV1 && indexK2 != indexV2)
+                {
+                    if (indexK2 == 0)
+                        indexK2 = 4;
+                    else
+                        --indexK2;
+                    if (indexV2 == 0)
+                        indexV2 = 4;
+                    else
+                        --indexV2;
+                    builder.Append(array[indexK1][indexK2]);
+                    builder.Append(array[indexV1][indexV2]);
+                }
+                if (indexK1 != indexV1 && indexK2 == indexV2)
+                {
+                    if (indexK1 == 0)
+                        indexK1 = 4;
+                    else
+                        --indexK1;
+                    if (indexV1 == 0)
+                        indexV1 = 4;
+                    else
+                        --indexV1;
+                    builder.Append(array[indexK1][indexK2]);
+                    builder.Append(array[indexV1][indexV2]);
+                }
+                if (indexK1 != indexV1 && indexK2 != indexV2)
+                {
+                    builder.Append(array[indexK1][indexV2]);
+                    builder.Append(array[indexV1][indexK2]);
+                }
+            }
+            return builder.ToString();
+        }
+
+        private static string Szyfruj(string tekstDozaszyfrowania, string[][] tablica)
+        {
+            StringBuilder builder = new StringBuilder();
+            List<Pair> Pary = TworzPary(tekstDozaszyfrowania);
+            int index1 = 0, index2 = 0, index11 = 0, index22 = 0;
+            foreach (var item in Pary)
+            {
+                for (int i = 0; i < tablica.Length; i++)
+                    for (int j = 0; j < tablica.Length; j++)
+                    {
+                        if (item.s1 == tablica[i][j])
+                        {
+                            index1 = i;
+                            index2 = j;
+                        }
+                        if (item.s2 == tablica[i][j])
+                        {
+                            index11 = i;
+                            index22 = j;
+                        }
+                    }
+                if (index1 == index11 && index2 != index22)
+                {
+                    if (index2 == 4)
+                        index2 = 0;
+                    else
+                        ++index2;
+                    if (index22 == 4)
+                        index22 = 0;
+                    else
+                        ++index22;
+                    builder.Append(tablica[index1][index2]);
+                    builder.Append(tablica[index11][index22]);
+                }
+                if (index1 != index11 && index2 == index22)
+                {
+                    if (index1 == 4)
+                        index1 = 0;
+                    else
+                        ++index1;
+                    if (index11 == 4)
+                        index11 = 0;
+                    else
+                        ++index11;
+                    builder.Append(tablica[index1][index2]);
+                    builder.Append(tablica[index11][index22]);
+                }
+                if (index1 != index11 && index2 != index22)
+                {
+                    builder.Append(tablica[index1][index22]);
+                    builder.Append(tablica[index11][index2]);
+                }
+            }
+            return builder.ToString();
+        }
+        private static List<Pair> TworzPary(string tekst)
+        {
+            List<Pair> ListaPar = new List<Pair>();
+            string x1 = "";
+            string x2 = "";
+            int index = 0;
+            for (int i = 0; i < tekst.Length; i = i + 2)
+            {
+                index = i + 1;
+                if (index >= tekst.Length || i > tekst.Length)
+                {
+                    x1 = tekst.Substring(i, 1);
+                    x2 = "X";
+                    ListaPar.Add(new Pair() { s1 = x1, s2 = x2 });
+                }
+                else
+                {
+                    x1 = tekst.Substring(i, 1);
+                    x2 = tekst.Substring(i + 1, 1);
+                    if (x1 == " ")
+                    {
+                        x1 = x2;
+                        x2 = tekst.Substring(i + 2, 1);
+                        ++i;
+                    }
+                    if (x2 == " ")
+                        x2 = "X";
+                    ListaPar.Add(new Pair() { s1 = x1, s2 = x2 });
+                }
+            }
+
+            return ListaPar;
+        }
+
+    }
+}
