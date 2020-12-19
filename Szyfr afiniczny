@@ -1,0 +1,106 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+
+namespace Szyfr_afiniczny
+{
+    class Program
+    {
+        private static List<char> AlfabetENG = new
+        List<char>() {
+             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q' , 'R' , 'S' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z' ,
+                     };
+        private static List<char> AlfabetPL = new
+        List<char>() {
+             'A', 'Ą' , 'B', 'C', 'Ć', 'D', 'E', 'Ę', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'Ł', 'M', 'N', 'Ń', 'O', 'Ó', 'P', 'Q' , 'R' , 'S', 'Ś' , 'T' , 'U' , 'V' , 'W' , 'X' , 'Y' , 'Z', 'Ź', 'Ż' ,
+                     };
+        private static List<char> AlfabetSz1 = new List<char>();
+        private static List<char> AlfabetSz2 = new List<char>();
+        private static string Szyfruj(string zdanie, List<char> alfabet, List<char> alfabetSz)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < zdanie.Length; i++)
+            {
+                if (' ' == char.Parse(zdanie.Substring(i, 1))) 
+                {
+                    builder.Append(" ");
+                }
+                else
+                {
+                    char x = char.Parse(zdanie.Substring(i, 1));
+                    for (int j = 0; j < alfabet.Count(); j++)
+                    {
+                        if (x==alfabet[j])
+                        {
+                            builder.Append(alfabetSz[j]);
+                        }
+                    }
+                }
+            }
+            return builder.ToString();
+        }
+        private static string Odszyfruj(string zdanie, List<char> alfabet, List<char> alfabetSz)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < zdanie.Length; i++)
+            {
+                if (' ' == char.Parse(zdanie.Substring(i, 1)))
+                {
+                    builder.Append(" ");
+                }
+                else
+                {
+                    char x = char.Parse(zdanie.Substring(i, 1));
+                    for (int j = 0; j < alfabet.Count(); j++)
+                    {
+                        if (x == alfabetSz[j])
+                        {
+                            builder.Append(alfabet[j]);
+                        }
+                    }
+                }
+            }
+            return builder.ToString();
+        }
+
+        private static List<char> AlfabetDoSzyfru(int x, int y, List<char> alfabet)
+        {
+            HashSet<char> nalf = new HashSet<char>();
+            for (int i = 0; i < alfabet.Count; i++)
+            {
+                nalf.Add(alfabet[((x * i) + y) % alfabet.Count]);
+            }
+            return nalf.ToList();
+        }
+        static void Main(string[] args)
+        {
+            do
+            {
+                var alfabet1 = AlfabetENG;
+                var alfabet2 = AlfabetPL;
+                int x = 1;
+                int y = 15;
+                AlfabetSz1 = AlfabetDoSzyfru(x, y, alfabet1);
+                AlfabetSz2 = AlfabetDoSzyfru(x, y, alfabet2);
+
+                string zdanie1 = "zdanie bez polskich znakow";
+                string zdanie2 = "polskie źżćąęóńś znaki";
+
+                string gotowezdanieENG = Szyfruj(zdanie1.ToUpper(), alfabet1, AlfabetSz1);
+                Console.WriteLine("ENG Zdanie po zakodowaniu: {0}",gotowezdanieENG);
+                Console.WriteLine("ENG Zdanie po rozkodowaniu: {0}",Odszyfruj(gotowezdanieENG,alfabet1,AlfabetSz1));
+                //------------
+                string gotowezdaniePL = Szyfruj(zdanie2.ToUpper(), alfabet2, AlfabetSz2);
+                Console.WriteLine("PL Zdanie po zakodowaniu: {0}", gotowezdaniePL);
+                Console.WriteLine("PL Zdanie po rozkodowaniu: {0}",Odszyfruj(gotowezdaniePL, alfabet2, AlfabetSz2));
+
+
+                Console.ReadKey();
+            } while (true);
+        }
+
+    }
+
+}
